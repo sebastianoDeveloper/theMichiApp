@@ -14,11 +14,11 @@ const API_URL_FAVORITE = [
   'https://api.thecatapi.com/v1/',
   'favourites',
   '?',
-  `&api_key=${API_KEY}`,
+  // `&api_key=${API_KEY}`,
 ].join('')
 
 const API_URL_FAVORITE_DLT = (id) =>
-  `https://api.thecatapi.com/v1/favourites/${id}?api_key=${API_KEY}`;
+  `https://api.thecatapi.com/v1/favourites/${id}`;
 
 const reloadBtn = document.getElementById('reloadButton')
 const gato1 = document.getElementById('cat1')
@@ -71,7 +71,12 @@ function cargarImagenGato() {
     });}
 
 function verImgFav() {
-  fetch(API_URL_FAVORITE)
+  fetch(API_URL_FAVORITE, {
+    method: 'GET',
+    headers: {
+      'X-API-KEY': API_KEY
+    }
+  })
   // * fetch devuelve una promise
   .then(res => res.json())
   .then(data => {
@@ -109,8 +114,6 @@ async function saveFavouriteMichis(id) {
   }
   const res = await fetch(API_URL_FAVORITE, {
     method: 'POST',
-
-
     headers: {
         'Content-Type': 'application/json',
         'x-api-key': API_KEY
@@ -136,6 +139,9 @@ async function deleteFavouriteMichis(id) {
   }
   const res = await fetch(API_URL_FAVORITE_DLT(id), {
     method: 'DELETE',
+    headers: {
+      'X-API-KEY': API_KEY
+    }
   })
   const dataCatFav = await res.json()
   const errorMessage = dataCatFav.message ? dataCatFav.message : "Error desconocido";
