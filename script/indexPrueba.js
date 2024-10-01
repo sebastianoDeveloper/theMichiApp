@@ -20,11 +20,14 @@ const API_URL_FAVORITE = [
 const API_URL_FAVORITE_DLT = (id) =>
   `https://api.thecatapi.com/v1/favourites/${id}`;
 
+const API_UPLOAD = 'https://api.thecatapi.com/v1/images/upload';
+
 const reloadBtn = document.getElementById('reloadButton')
 const gato1 = document.getElementById('cat1')
 const gato2 = document.getElementById('cat2')
 
 const spanError = document.getElementById('error')
+const cancel = document.getElementById('cancel')
 cargarImagenGato()
 verImgFav()
 
@@ -109,6 +112,7 @@ function verImgFav() {
 }
 
 async function saveFavouriteMichis(id) {
+
   const queryString = {
       image_id: id,
   }
@@ -116,14 +120,26 @@ async function saveFavouriteMichis(id) {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',
+        // 'Content-Type': 'text/plain',
         'x-api-key': API_KEY
     },
+    // body: queryString,
     body: JSON.stringify(queryString),
+    // de esta manera stinfiamos o parciamos la info correctamente
   })
-  const dataCatFav = await res.json()
-  const errorMessage = dataCatFav.message ? dataCatFav.message : "Error desconocido";
+  // Verificar el tipo de contenido en la respuesta
+  const contentType = res.headers.get('content-type');
 
-  console.log('save',res);
+  let dataCatFav;
+  if (contentType && contentType.includes('application/json')) {
+    dataCatFav = await res.json();
+  } else {
+    // Si no es JSON, probablemente sea texto plano
+    const errorText = await res.text();
+    spanError.innerText = `Error: ${res.status} - ${errorText}`;
+    console.error('Respuesta no JSON recibida:', errorText);
+    return; // Salir de la función si hay un error
+  }
   if (res.status !== 200) {
     const errorMessage = dataCatFav.message ? dataCatFav.message : "Error desconocido";
     spanError.innerText = `Hubo un error ${res.status}: ${errorMessage}`;
@@ -156,5 +172,83 @@ async function deleteFavouriteMichis(id) {
     console.log('¡Imagen eliminada de favoritos!', dataCatFav);
   }
 
+
+}
+
+async function uploadMichi() {
+  const form = document.getElementById('uploadingForm')
+  const formData = new FormData(form)
+  // console.log(formData.get('file'));
+
+  try {
+    const res = await fetch(API_UPLOAD, {
+      method: 'POST',
+      headers: {
+        // 'Content-Type': 'multipart/form-data',
+        'x-api-key': API_KEY
+      },
+      body: formData
+    })
+
+    // Verificamos si el tipo de contenido es JSON antes de procesarlo
+    let data;
+    const contentType = res.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      data = await res.json();
+    } else {
+      data = await res.text(); // Lee el texto si no es JSON
+    }
+
+    if (res.status !== 201) {
+      // Muestra el mensaje de error en pantalla
+      spanError.innerHTML = 'Hubo un error: ' + res.status + ' ' + data.message || data;
+      console.error('Error:', data);
+    } else {
+      console.log('Foto de michi subida exitosamente:', data);
+      console.log({ data });
+      console.log(data.url);
+      await saveFavouriteMichis(data.id);
+      verImgFav()
+    }
+  } catch (error) {
+    console.error('Error al subir la imagen:', error);
+  }
+}
+
+function previewImage() {
+  const fileInput = document.getElementById('file');
+  const thumbnail = document.getElementById('thumbnail');
+  cancel.style.display = 'block';
+
+  // Verifica si se ha seleccionado un archivo
+  if (fileInput.files && fileInput.files[0]) {
+    const reader = new FileReader();
+
+    // Cuando el archivo se ha leído, muestra la vista previa
+    reader.onload = function(e) {
+      thumbnail.src = e.target.result; // Asignamos la imagen leída al src del img
+      thumbnail.style.display = 'block'; // Hacemos visible la miniatura
+
+        setTimeout(() => {
+          thumbnail.style.display = 'none';
+          cancel.style.display = 'none';
+      }, 10000); // 10000 milisegundos = 10 segundos
+    }
+
+    // Leemos el archivo seleccionado
+    reader.readAsDataURL(fileInput.files[0]);
+  }
+}
+
+function cancelUploadMichi() {
+  const fileInput = document.getElementById('file');
+  const thumbnail = document.getElementById('thumbnail');
+  const cancel = document.getElementById('cancel');
+
+  cancel.style.display = 'none';
+  thumbnail.style.display = 'none';
+
+  // **Restablece el input de archivo**
+  fileInput.value = ''; // <-- Cambio: Restablecer el valor del input de archivo
 
 }
