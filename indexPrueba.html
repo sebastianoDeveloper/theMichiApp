@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Practicando API Rest</title>
+  <link rel="stylesheet" href="styles/style.css">
+</head>
+
+<body style="background-color: black;color: white;">
+  <h1>GATITOS ALEATORIOS</h1>
+  <input type="button" value="Recargar Imagenes" id="reloadButton">
+  <!-- <div id="loadingMessage">Cargando imagenes ...</div> -->
+  <span id="error"></span>
+  <section id="randomMichis">
+    <h2>Gatos aleatorios</h2>
+    <article>
+      <img alt="1ra Foto de gato" id="cat1" width="250px" height="250px">
+      <input type="button" value="Convertir a favoritos" id="btnConvFav1">
+    </article>
+    <article>
+      <img alt="2da Foto de gato" id="cat2" width="250px" height="250px">
+      <input type="button" value="Convertir a favoritos" id="btnConvFav2">
+    </article>
+  </section>
+
+  <section id="uploadingMichi">
+    <h2>Sube la foto de tu michi</h2>
+    <form id="uploadingForm">
+      <input id="file" type="file" name="file" onchange="previewImage()">
+      <button type="button" onclick="uploadMichi()">Subir foto de michi</button>
+      <button type="button" onclick="cancelUploadMichi()" id="cancel" style="display: none;">Cancelar</button>
+    </form>
+    <div id="thumbnail-container">
+      <img id="thumbnail" src="" alt="Miniatura del michi" style="display:none; width: 200px; height: auto;">
+    </div>
+  </section>
+
+  <section id="favouritesMichis">
+    <h2>Gatos favoritos</h2>
+    <article>
+      <img alt="Foto de gato 1" id="img_fav_cat_1" width="250px" height="250px">
+      <input type="button" value="Eliminar de favoritos" id="swith_fav_cat">
+    </article>
+  </section>
+
+
+  <script src="script/indexPrueba.js"" defer></script>
+</body>
+
+</html>
